@@ -1,26 +1,182 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-asphalt: #15130f;
+  --color-asphalt-2: #221f1a;
+  --color-asphalt-3: #34302a;
+  --color-paper: #f2ede2;
+  --color-paper-2: #e7e0d1;
+  --color-ink: #1c1a16;
+  --color-muted: #6b6457;
+  --color-safety: #ff5a1f;
+  --color-safety-dark: #d9430d;
+  --color-signal: #2fbf71;
+  --color-bubble: #2b2823;
+
+  --font-display: var(--font-big-shoulders);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-plex-sans), ui-sans-serif, sans-serif;
+}
+
+/* Paper grain, used on light sections */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Blueprint grid, used on dark sections */
+.blueprint {
+  background-color: var(--color-asphalt);
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.hazard {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-safety) 0 14px,
+    var(--color-asphalt) 14px 28px
+  );
+}
+
+.stamp {
+  font-family: var(--font-plex-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+}
+
+/* Hero load sequence */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  opacity: 0;
+  animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Phone conversation: bubbles appear one after another, on loop */
+.chat > * {
+  opacity: 0;
+  animation: pop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1.2) forwards;
+  animation-delay: calc(var(--i) * 900ms + 600ms);
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  10%,
+  30% {
+    transform: rotate(-14deg);
+  }
+  20%,
+  40% {
+    transform: rotate(14deg);
+  }
+  50% {
+    transform: rotate(0);
+  }
+}
+.ring {
+  animation: ring 1.6s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+/* Sections ease in as they scroll into view, where supported */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .chat > *,
+  .reveal {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .ring {
+    animation: none;
+  }
+}
+
+/* Range slider styling for the calculator */
+.slider {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-safety) var(--fill, 50%),
+    var(--color-asphalt-3) var(--fill, 50%)
+  );
+}
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--color-paper);
+  border: 3px solid var(--color-safety);
+  cursor: grab;
+}
+.slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--color-paper);
+  border: 3px solid var(--color-safety);
+  cursor: grab;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .faq-plus {
+  transform: rotate(45deg);
 }
